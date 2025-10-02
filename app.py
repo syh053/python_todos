@@ -1,7 +1,20 @@
-from flask import Flask
+from flask import Flask, jsonify
+from db.config import Config
 
+from db import init_app
+from db.models import Todos
+
+
+# 建立 app
 app = Flask(__name__)
+app.config.from_object(Config)
 
+
+# 初始化 ORM & Migrate
+init_app(app)
+
+  
+# ---------- Routes ----------
 @app.route("/")
 def index():
   return "hello world!"
@@ -12,7 +25,16 @@ def get_todos():
 
 @app.route("/todos/<id>", methods=["GET"])
 def get_todos_detail(id):
-  return f"get {id} todos detail"
+  todo = Todos.query.get(id)
+
+  print(todo)
+
+  todo_json = jsonify({
+    "id" : todo.id,
+    "name" : todo.name
+  })
+
+  return todo_json
 
 @app.route("/todos/new", methods=["GET"])
 def get_todos_new_page():
